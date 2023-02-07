@@ -34,7 +34,7 @@ public class Main {
 			}
 		}
 		
-		maze.solve();
+		maze.solve(win);
 		
 		maze.mainRoute.forEach(pix -> win.drawMazePixel(pix.coords[0], pix.coords[1], Color.red));
 

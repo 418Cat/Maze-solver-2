@@ -14,7 +14,7 @@ import javax.swing.WindowConstants;
 public class MazeWindow {
 	
 	JFrame mazeFrame;
-	Graphics g;
+	public Graphics g;
 	
 	int[] frameSize;
 	int[] mazeRes;
@@ -32,7 +32,7 @@ public class MazeWindow {
 		
 		mazeFrame = new JFrame("Maze solver");
 		mazeFrame.setSize(sizeX, sizeY);
-		mazeFrame.setLocation(0, 1500);
+		mazeFrame.setLocation(1500, 0);
 		
 		mazeFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		mazeFrame.setUndecorated(true);
@@ -61,6 +61,7 @@ public class MazeWindow {
 	 * @param color color to display
 	 */
 	public void drawMazePixel(int x, int y, Color color) {
+		
 		g.setColor(color);
 		g.fillRect(x*mazePixelSize, y*mazePixelSize, mazePixelSize, mazePixelSize);
 	}

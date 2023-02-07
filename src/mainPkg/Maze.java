@@ -30,18 +30,17 @@ public class Maze {
 	 * @return the size of the maze pixels
 	 */
 	private int findMazePixelSize() {
-		Color pixColor = new Color(mazeImage.getRGB(0, 0));
 		
 		int entryCoordImgPix = 0;
 		
 		int width = 0;
 		for(int x = 0; x < mazeImage.getWidth(); x++) {
-			if(mazeImage.getRGB(x, 0) != pixColor.getRGB()) {
+			if(new Color(mazeImage.getRGB(x, 0)).getRed() > 128) {
 				if(width == 0) {
 					entryCoordImgPix = x;
 				}
 				width++;
-			} else if(mazeImage.getRGB(x, 0) == pixColor.getRGB() && width > 0) {
+			} else if(new Color(mazeImage.getRGB(x, 0)).getRed() < 128 && width > 0) {
 				break;
 			}
 		}
@@ -70,20 +69,20 @@ public class Maze {
 				
 				tmpPix.coords = new int[] {x, y};
 				
-				if(tmpPix.rgb[0] > 0 && tmpPix.rgb[1] > 0 && tmpPix.rgb[2] > 0) {
+				if(tmpPix.rgb[0] > 128 && tmpPix.rgb[1] > 128 && tmpPix.rgb[2] > 128) {
 					tmpPix.setBooleans(false, false, false, true, false);
 				}
 				
-				if(tmpPix.rgb[0] == 0 && tmpPix.rgb[1] == 0 && tmpPix.rgb[2] == 0) {
+				if(tmpPix.rgb[0] < 128 && tmpPix.rgb[1] < 128 && tmpPix.rgb[2] < 128) {
 					tmpPix.setBooleans(false, false, true, false, false);
 				}
 				
-				if(y == 0 && tmpPix.rgb[0] > 0 && tmpPix.rgb[1] > 0 && tmpPix.rgb[2] > 0) {
+				if(y == 0 && tmpPix.rgb[0] > 128 && tmpPix.rgb[1] > 128 && tmpPix.rgb[2] > 128) {
 					tmpPix.setBooleans(true, false, false, true, false);
 					System.out.println("found entry coords");
 				}
 				
-				if(y+1 == mazeImage.getHeight()/mazePixSize && y == 0 && tmpPix.rgb[0] > 0 && tmpPix.rgb[1] > 0 && tmpPix.rgb[2] > 0) {
+				if(y+1 == mazeImage.getHeight()/mazePixSize && y == 0 && tmpPix.rgb[0] > 128 && tmpPix.rgb[1] > 128 && tmpPix.rgb[2] > 128) {
 					tmpPix.setBooleans(false, true, false, true, false);
 					exitCoords = new int[] {x, y};
 				}
@@ -96,7 +95,7 @@ public class Maze {
 		
 	}
 	
-	public void solve() {
+	public void solve(MazeWindow win) {
 		
 		boolean solved = false;
 		
@@ -105,7 +104,8 @@ public class Maze {
 		
 		while(!solved) {
 			
-			System.out.println("current coords : " + mainRoute.get(mainRoute.size()-1).coords[0] + ", " + mainRoute.get(mainRoute.size()-1).coords[1]);
+			mainRoute.get(mainRoute.size()-1).isPathUsed = true;
+			mainRoute.get(mainRoute.size()-1).indexInPath = mainRoute.size()-1;
 			
 			if(countAvailableNeighbors(mainRoute.get(mainRoute.size()-1)) == 1) {
 				availablePaths.add(getAvailableNeighbors(mainRoute.get(mainRoute.size()-1))[0]);
@@ -124,36 +124,24 @@ public class Maze {
 				}
 				
 				final int lastCrossingIndexFinal = lastCrossingIndex;
-				mainRoute.removeIf(n -> n.indexInPath >= lastCrossingIndexFinal);
+				for(int i = lastCrossingIndex+1; i < mainRoute.size(); i++) {
+					win.drawMazePixel(mainRoute.get(i).coords[0], mainRoute.get(i).coords[1], Color.white);
+				}
+				mainRoute.removeIf(pix -> pix.indexInPath > lastCrossingIndexFinal);
 				
 			}
 			
 			if(availablePaths.size() > 0) { 
 				mainRoute.add(availablePaths.get(availablePaths.size()-1));
-				mainRoute.get(mainRoute.size()-1).isPathUsed = true;
-				mainRoute.get(mainRoute.size()-1).indexInPath = mainRoute.size()-1;
 				availablePaths.remove(availablePaths.size()-1);
 			}
+			
+			win.drawMazePixel(mainRoute.get(mainRoute.size()-1).coords[0], mainRoute.get(mainRoute.size()-1).coords[1], Color.blue);
 			
 			if(mainRoute.get(mainRoute.size()-1).coords[1] == map[0].length-1) solved = true;
 			
 		}
 		
-	}
-	
-	
-	private boolean pixHasNeighborsAvailable(MazePixel pix) {
-		
-		int x = pix.coords[0];
-		int y = pix.coords[1];
-
-		if(hasLeftNeighborAvailable(pix)) return(true); //left neighbor available
-		if(hasRightNeighborAvailable(pix)) return(true); //right neighbor available
-		
-		if(hasTopNeighborAvailable(pix)) return(true); //top neighbor available
-		if(hasBottomNeighborAvailable(pix)) return(true); //bottom neighbor available
-		
-		return(false);
 	}
 	
 	private int countAvailableNeighbors(MazePixel pix) {

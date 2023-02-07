@@ -1,5 +1,6 @@
 package mainPkg;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +33,10 @@ public class Main {
 				win.drawMazePixel(pix.coords[0], pix.coords[1], pix.color);
 			}
 		}
+		
+		maze.solve();
+		
+		maze.mainRoute.forEach(pix -> win.drawMazePixel(pix.coords[0], pix.coords[1], Color.red));
 
 	}
 

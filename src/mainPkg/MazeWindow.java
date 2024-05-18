@@ -37,6 +37,8 @@ public class MazeWindow {
 		mazeFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		mazeFrame.setUndecorated(true);
 		mazeFrame.setVisible(true);
+		mazeFrame.setAlwaysOnTop(true);
+		mazeFrame.toFront();
 		
 		g = mazeFrame.getGraphics();
 		
@@ -61,7 +63,19 @@ public class MazeWindow {
 	 * @param color color to display
 	 */
 	public void drawMazePixel(int x, int y, Color color) {
+		mazeFrame.setEnabled(true);;
 		
+		try {
+			Thread.sleep(Main.sleepMs);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+		g.setColor(color);
+		g.fillRect(x*mazePixelSize, y*mazePixelSize, mazePixelSize, mazePixelSize);
+	}
+	
+	public void drawMazePixelNoSleep(int x, int y, Color color) {
 		g.setColor(color);
 		g.fillRect(x*mazePixelSize, y*mazePixelSize, mazePixelSize, mazePixelSize);
 	}

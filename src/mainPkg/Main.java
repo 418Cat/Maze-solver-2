@@ -1,6 +1,5 @@
 package mainPkg;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +7,9 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class Main {
+	
+	public static MazeWindow win;
+	public static int sleepMs = 1;
 
 	public static void main(String[] args) {
 		
@@ -26,17 +28,15 @@ public class Main {
 		
 		Maze maze = new Maze(mazeImage);
 		
-		MazeWindow win = new MazeWindow(mazeImage.getWidth(), mazeImage.getHeight(), maze.mazePixSize);
+		win = new MazeWindow(mazeImage.getWidth(), mazeImage.getHeight(), maze.mazePixSize);
 		
 		for(MazePixel[] pixRow : maze.map) {
 			for(MazePixel pix : pixRow) {
-				win.drawMazePixel(pix.coords[0], pix.coords[1], pix.color);
+				win.drawMazePixelNoSleep(pix.coords[0], pix.coords[1], pix.color);
 			}
 		}
 		
 		maze.solve(win);
-		
-		maze.mainRoute.forEach(pix -> win.drawMazePixel(pix.coords[0], pix.coords[1], Color.red));
 
 	}
 

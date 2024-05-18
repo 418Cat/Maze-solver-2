@@ -79,7 +79,6 @@ public class Maze {
 				
 				if(y == 0 && tmpPix.rgb[0] > 128 && tmpPix.rgb[1] > 128 && tmpPix.rgb[2] > 128) {
 					tmpPix.setBooleans(true, false, false, true, false);
-					System.out.println("found entry coords");
 				}
 				
 				if(y+1 == mazeImage.getHeight()/mazePixSize && y == 0 && tmpPix.rgb[0] > 128 && tmpPix.rgb[1] > 128 && tmpPix.rgb[2] > 128) {
@@ -106,6 +105,7 @@ public class Maze {
 			
 			mainRoute.get(mainRoute.size()-1).isPathUsed = true;
 			mainRoute.get(mainRoute.size()-1).indexInPath = mainRoute.size()-1;
+			win.drawMazePixel(mainRoute.get(mainRoute.size()-1).coords[0], mainRoute.get(mainRoute.size()-1).coords[1], getGradient(mainRoute.get(mainRoute.size()-1).indexInPath));
 			
 			if(countAvailableNeighbors(mainRoute.get(mainRoute.size()-1)) == 1) {
 				availablePaths.add(getAvailableNeighbors(mainRoute.get(mainRoute.size()-1))[0]);
@@ -117,16 +117,21 @@ public class Maze {
 				}
 			}
 			
+			
+			// No available paths for the current cursor but some left behind
 			if(countAvailableNeighbors(mainRoute.get(mainRoute.size()-1)) == 0 && availablePaths.size() > 0) {
+				
+				// Index of the crossing pixel in the list
 				int lastCrossingIndex = 0;
 				for(MazePixel neighb : getNeighbors(availablePaths.get(availablePaths.size()-1))) {
 					if(neighb.isPathUsed && neighb.indexInPath > lastCrossingIndex) lastCrossingIndex = neighb.indexInPath;
 				}
 				
 				final int lastCrossingIndexFinal = lastCrossingIndex;
-				for(int i = lastCrossingIndex+1; i < mainRoute.size(); i++) {
-					win.drawMazePixel(mainRoute.get(i).coords[0], mainRoute.get(i).coords[1], Color.white);
-				}
+				/*for(int i = lastCrossingIndex+1; i < mainRoute.size(); i++) {
+					win.drawMazePixel(mainRoute.get(i).coords[0], mainRoute.get(i).coords[1], Color.red);
+				}*/
+				erasePathPixels(lastCrossingIndexFinal);
 				mainRoute.removeIf(pix -> pix.indexInPath > lastCrossingIndexFinal);
 				
 			}
@@ -136,12 +141,33 @@ public class Maze {
 				availablePaths.remove(availablePaths.size()-1);
 			}
 			
-			win.drawMazePixel(mainRoute.get(mainRoute.size()-1).coords[0], mainRoute.get(mainRoute.size()-1).coords[1], Color.blue);
-			
-			if(mainRoute.get(mainRoute.size()-1).coords[1] == map[0].length-1) solved = true;
+			if(mainRoute.get(mainRoute.size()-1).coords[1] == map[0].length-1)
+			{
+				solved = true;
+				Main.win.drawMazePixelNoSleep(mainRoute.get(mainRoute.size()-1).coords[0], mainRoute.get(mainRoute.size()-1).coords[1], getGradient(mainRoute.size()-1));
+			}
 			
 		}
+	}
+	
+	private void erasePathPixels(int lastCrossingIndex)
+	{
+		for(int i = mainRoute.size()-1; i > lastCrossingIndex; i--)
+		{
+			Main.win.drawMazePixel(mainRoute.get(i).coords[0], mainRoute.get(i).coords[1], Color.white);
+		}
+	}
+	
+	private Color getGradient(int index) {
 		
+		int[] limits = {60, 204};
+		
+		return Color.getHSBColor((float)index/(float)360., (float)1.0, (float)0.9);
+		//return(new Color(0xff0000));
+		/*int isMoreThan255 = index > 255 ? 1 : 0;
+		int isMoreThan255255 = index > 255*255 ? 1 : 0;
+		int color = 0;
+		return(new Color(color));*/
 	}
 	
 	private int countAvailableNeighbors(MazePixel pix) {
